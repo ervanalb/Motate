@@ -271,7 +271,7 @@ endif #LINUX
 endif #Darwin
 
 
-PATH := $(TOOLS_PATH)/$(TOOLS_SUBPATH)/bin:$(PATH)
+#PATH := $(TOOLS_PATH)/$(TOOLS_SUBPATH)/bin:$(PATH)
 
 # end Unix/linux section
 endif #WINDOWS
@@ -284,7 +284,12 @@ export MOTATE_PATH
 CWD = $(realpath .)
 
 # Compilation tools - hardcode the full path to the ones we provide
-TOOLS_FULLPATH = "$(TOOLS_PATH)/$(TOOLS_SUBPATH)/bin"
+ifdef TOOLCHAIN
+TOOLS_FULLPATH := $(TOOLCHAIN)
+else
+TOOLS_FULLPATH := $(TOOLS_PATH)/$(TOOLS_SUBPATH)/bin
+endif
+
 CC      = $(TOOLS_FULLPATH)/$(CROSS_COMPILE)-gcc
 CXX     = $(TOOLS_FULLPATH)/$(CROSS_COMPILE)-g++
 LD      = $(TOOLS_FULLPATH)/$(CROSS_COMPILE)-ld
@@ -295,7 +300,6 @@ OBJCOPY = $(TOOLS_FULLPATH)/$(CROSS_COMPILE)-objcopy
 GDB     = $(TOOLS_FULLPATH)/$(CROSS_COMPILE)-gdb
 GDB_PY  = $(TOOLS_FULLPATH)/$(CROSS_COMPILE)-gdb-py
 NM      = $(TOOLS_FULLPATH)/$(CROSS_COMPILE)-nm
-
 
 ifneq ($(NOT_IN_GIT),1)
 	GIT_LOCATED := $(GIT)
@@ -401,8 +405,14 @@ $(eval $(DEVICE_RULES))
 tools: | $(TOOLS_PATH)/$(TOOLS_SUBPATH)/bin
 
 $(TOOLS_PATH)/$(TOOLS_SUBPATH)/bin:
+ifdef TOOLCHAIN
+	@echo Using provided toolchain
+	mkdir -p "$(TOOLS_PATH)/$(TOOLS_SUBPATH)/bin"
+	@echo Compiler is $(CXX)
+else
 	@echo Installing the necessary tools...
 	cd ${TOOLS_PATH} && make "ARCH=gcc-${CROSS_COMPILE}"
+endif
 
 OUTDIR = $(OBJ)
 

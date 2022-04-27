@@ -405,7 +405,7 @@ namespace Motate {
         };
 
         char* getTXTransferPosition() {
-            if (_tx_paused) { return false; }
+            if (_tx_paused) { return NULL; }
             return dma()->getTXTransferPosition();
         };
 
